@@ -1,12 +1,14 @@
 package com.example.randomtasks_workmanager
 
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,11 +17,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
+import androidx.work.BackoffPolicy
+import androidx.work.OneTimeWorkRequestBuilder
 import dagger.hilt.android.AndroidEntryPoint
+import java.time.Duration
 
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         val viewModel by viewModels<MainViewModel>()
         enableEdgeToEdge(
@@ -29,6 +35,14 @@ class MainActivity : ComponentActivity() {
             )
         )
         super.onCreate(savedInstanceState)
+        val workRequest = OneTimeWorkRequestBuilder<CustomWorker>()
+            //will start after 10 seconds as our function will start
+            .setInitialDelay(Duration.ofSeconds(10))
+            //If our work will fail this is our retry policy
+            .setBackoffCriteria(
+                backoffPolicy = BackoffPolicy.LINEAR,
+                duration = Duration.ofSeconds(10)
+            )
         setContent {
             val task = viewModel.task.collectAsState().value
             task?.let { task ->

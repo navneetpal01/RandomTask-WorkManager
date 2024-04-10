@@ -23,11 +23,12 @@ class MainViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            taskRepository.getTask().collectLatest {task ->
-                when(task){
+            taskRepository.getTask().collectLatest { task ->
+                when (task) {
                     is TaskResult.Failure -> {
 
                     }
+
                     is TaskResult.Success -> {
                         task.data?.let { task ->
                             _task.update {
@@ -39,6 +40,4 @@ class MainViewModel @Inject constructor(
             }
         }
     }
-
-
 }

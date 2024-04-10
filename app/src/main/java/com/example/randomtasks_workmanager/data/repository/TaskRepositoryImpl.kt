@@ -10,12 +10,12 @@ import javax.inject.Inject
 
 class TaskRepositoryImpl @Inject constructor(
     private val taskApi: TaskApi
-): TaskRepository {
+) : TaskRepository {
     override suspend fun getTask(): Flow<TaskResult<Task>> {
         return flow {
             val task = try {
                 taskApi.getTask()
-            }catch (e : Exception){
+            } catch (e: Exception) {
                 emit(TaskResult.Failure(message = "Check your Internet Connection"))
                 return@flow
             }
