@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
 import androidx.work.BackoffPolicy
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.Duration
 
@@ -27,7 +28,7 @@ import java.time.Duration
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
-        val viewModel by viewModels<MainViewModel>()
+//        val viewModel by viewModels<MainViewModel>()
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.light(
                 Color.TRANSPARENT,
@@ -37,27 +38,30 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val workRequest = OneTimeWorkRequestBuilder<CustomWorker>()
             //will start after 10 seconds as our function will start
-            .setInitialDelay(Duration.ofSeconds(10))
+            .setInitialDelay(Duration.ofSeconds(20))
             //If our work will fail this is our retry policy
+            //If will set it to exponential it means it will rerun after 15 sec for the first time and 30 sec after the second time and 60 sec for the third time
             .setBackoffCriteria(
                 backoffPolicy = BackoffPolicy.LINEAR,
-                duration = Duration.ofSeconds(10)
+                duration = Duration.ofSeconds(15)
             )
+            .build()
+        WorkManager.getInstance(applicationContext).enqueue(workRequest)
         setContent {
-            val task = viewModel.task.collectAsState().value
-            task?.let { task ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ){
-                    Text(
-                        text = task.activity,
-                        fontSize = 30.sp
-                    )
-                }
-            }
+//            val task = viewModel.task.collectAsState().value
+//            task?.let { task ->
+//                Column(
+//                    modifier = Modifier
+//                        .fillMaxSize(),
+//                    verticalArrangement = Arrangement.Center,
+//                    horizontalAlignment = Alignment.CenterHorizontally,
+//                ){
+//                    Text(
+//                        text = task.activity,
+//                        fontSize = 30.sp
+//                    )
+//                }
+//            }
         }
     }
 }
